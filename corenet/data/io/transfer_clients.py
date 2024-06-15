@@ -15,7 +15,6 @@ from typing import List, Optional, Union
 from urllib.parse import urlparse
 
 import boto3
-import requests
 from boto3.s3.transfer import S3Transfer, TransferConfig
 from joblib import Parallel, delayed
 
@@ -24,6 +23,7 @@ from corenet.utils import logger, resources
 from corenet.utils.common_utils import construct_local_path_from_remote
 from corenet.utils.ddp_utils import dist_barrier, is_master, is_start_rank_node
 from corenet.utils.registry import Registry
+from security import safe_requests
 
 
 class BaseClient(object):
@@ -362,10 +362,10 @@ class HTTPClient(BaseClient):
         }
 
     def _download_fn(self, remote_path: str, local_path: str) -> None:
-        response = requests.get(remote_path, stream=True)
+        response = safe_requests.get(remote_path, stream=True)
         if response.status_code == 403:
             # Try with the HTTP/HTTPS proxy from ENV
-            response = requests.get(remote_path, stream=True, proxies=self.proxies)
+            response = safe_requests.get(remote_path, stream=True, proxies=self.proxies)
         if response.status_code == 200:
             with open(local_path, "wb") as f:
                 f.write(response.raw.read())
