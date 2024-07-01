@@ -7,7 +7,6 @@ import datetime
 import hashlib
 import math
 import os
-import random
 import subprocess
 import tempfile
 from pathlib import Path
@@ -25,6 +24,7 @@ from corenet.data.transforms import TRANSFORMATIONS_REGISTRY, BaseTransformation
 from corenet.data.transforms.utils import *
 from corenet.options.parse_args import JsonValidator
 from corenet.utils import logger
+import secrets
 
 SUPPORTED_PYTORCH_INTERPOLATIONS = ["nearest", "bilinear", "bicubic"]
 
@@ -518,16 +518,16 @@ class RandomResizedCrop(BaseTransformation):
     def get_params(self, height: int, width: int) -> (int, int, int, int):
         area = height * width
         for _ in range(10):
-            target_area = random.uniform(*self.scale) * area
+            target_area = secrets.SystemRandom().uniform(*self.scale) * area
             log_ratio = (math.log(self.ratio[0]), math.log(self.ratio[1]))
-            aspect_ratio = math.exp(random.uniform(*log_ratio))
+            aspect_ratio = math.exp(secrets.SystemRandom().uniform(*log_ratio))
 
             w = int(round(math.sqrt(target_area * aspect_ratio)))
             h = int(round(math.sqrt(target_area / aspect_ratio)))
 
             if 0 < w <= width and 0 < h <= height:
-                i = random.randint(0, height - h)
-                j = random.randint(0, width - w)
+                i = secrets.SystemRandom().randint(0, height - h)
+                j = secrets.SystemRandom().randint(0, width - w)
                 return i, j, h, w
 
         # Fallback to central crop.
@@ -659,12 +659,12 @@ class RandomShortSizeResizeCrop(BaseTransformation):
         if width == tw and height == th:
             return 0, 0, height, width
 
-        i = random.randint(0, height - th)
-        j = random.randint(0, width - tw)
+        i = secrets.SystemRandom().randint(0, height - th)
+        j = secrets.SystemRandom().randint(0, width - tw)
         return i, j, th, tw
 
     def __call__(self, data: Dict) -> Dict:
-        short_dim = random.randint(self.short_side_max, self.short_side_max)
+        short_dim = secrets.SystemRandom().randint(self.short_side_max, self.short_side_max)
         # resize the video so that shorter side is short_dim
         data = _resize_fn(data, size=short_dim, interpolation=self.interpolation)
 
@@ -722,8 +722,8 @@ class RandomCrop(BaseTransformation):
         if width == tw and height == th:
             return 0, 0, height, width
 
-        i = random.randint(0, height - th)
-        j = random.randint(0, width - tw)
+        i = secrets.SystemRandom().randint(0, height - th)
+        j = secrets.SystemRandom().randint(0, width - tw)
         return i, j, th, tw
 
     def __call__(self, data: Dict) -> Dict:
@@ -771,7 +771,7 @@ class RandomHorizontalFlip(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        if random.random() <= self.p:
+        if secrets.SystemRandom().random() <= self.p:
             clip = data["samples"]["video"]
             check_rgb_video_tensor(clip=clip)
             clip = torch.flip(clip, dims=[-1])
@@ -1005,7 +1005,7 @@ class CropByBoundingBox(BaseTransformation):
         """
 
         traces = data["targets"]["traces"]
-        trace_identity = random.choice(list(traces.keys()))
+        trace_identity = secrets.choice(list(traces.keys()))
         trace = traces[trace_identity]
         video = data["samples"]["video"]
         if self.channel_first:
@@ -1020,7 +1020,7 @@ class CropByBoundingBox(BaseTransformation):
             f" {expected_box_coordinates_shape}"
         )
         if self.is_training and self.multiplier_range is not None:
-            multiplier = random.uniform(*self.multiplier_range)
+            multiplier = secrets.SystemRandom().uniform(*self.multiplier_range)
         else:
             multiplier = self.multiplier
 

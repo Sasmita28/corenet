@@ -5,7 +5,6 @@
 
 import argparse
 import math
-import random
 from typing import Dict, Tuple
 
 import torch
@@ -15,6 +14,7 @@ from torchvision.transforms import functional as F
 
 from corenet.data.transforms import TRANSFORMATIONS_REGISTRY, BaseTransformation
 from corenet.utils import logger
+import secrets
 
 
 # Copied from PyTorch Torchvision
@@ -457,6 +457,6 @@ def apply_mixing_transforms(opts: argparse.Namespace, data: Dict) -> Dict:
         mixup_transforms.append(RandomCutmix(opts=opts, num_classes=n_classes))
 
     if len(mixup_transforms) > 0:
-        _mixup_transform = random.choice(mixup_transforms)
+        _mixup_transform = secrets.choice(mixup_transforms)
         data = _mixup_transform(data)
     return data
