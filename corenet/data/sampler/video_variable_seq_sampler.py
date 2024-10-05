@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 from typing import Iterator, Optional, Tuple
 
 from corenet.data.sampler import SAMPLER_REGISTRY
@@ -14,6 +13,7 @@ from corenet.data.sampler.variable_batch_sampler import (
     VariableBatchSamplerDDP,
 )
 from corenet.utils import logger
+import secrets
 
 
 @SAMPLER_REGISTRY.register(name="video_variable_seq_sampler")
@@ -130,7 +130,7 @@ class VideoVariableSeqSampler(VariableBatchSampler):
                 # randomly sample number of clips and adjust frames per clip
                 n_clips = max(
                     1,
-                    random.randint(self.min_clips_per_video, self.max_clips_per_video),
+                    secrets.SystemRandom().randint(self.min_clips_per_video, self.max_clips_per_video),
                 )
                 batch_size = max(
                     self.batch_size_gpu0,
@@ -140,7 +140,7 @@ class VideoVariableSeqSampler(VariableBatchSampler):
                 n_clips = self.clips_per_video
                 batch_size = self.batch_size_gpu0
 
-            crop_h, crop_w, n_frames = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, n_frames = secrets.choice(self.img_batch_tuples)
             end_index = min(start_index + batch_size, indices_len)
             batch_ids = indices[start_index:end_index]
             n_batch_samples = len(batch_ids)
@@ -242,7 +242,7 @@ class VideoVariableSeqSamplerDDP(VariableBatchSamplerDDP):
                 # randomly sample number of clips and adjust batch size
                 n_clips = max(
                     1,
-                    random.randint(self.min_clips_per_video, self.max_clips_per_video),
+                    secrets.SystemRandom().randint(self.min_clips_per_video, self.max_clips_per_video),
                 )
                 batch_size = max(
                     self.batch_size_gpu0,
@@ -252,7 +252,7 @@ class VideoVariableSeqSamplerDDP(VariableBatchSamplerDDP):
                 n_clips = self.clips_per_video
                 batch_size = self.batch_size_gpu0
 
-            crop_h, crop_w, n_frames = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, n_frames = secrets.choice(self.img_batch_tuples)
 
             end_index = min(start_index + batch_size, n_samples_rank_i)
             batch_ids = indices_rank_i[start_index:end_index]

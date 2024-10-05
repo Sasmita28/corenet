@@ -6,7 +6,6 @@
 
 import argparse
 import os
-import random
 import time
 from argparse import ArgumentParser
 from functools import cached_property
@@ -24,6 +23,7 @@ from corenet.utils import logger, resources
 from corenet.utils.common_utils import construct_local_path_from_remote
 from corenet.utils.ddp_utils import dist_barrier, is_master, is_start_rank_node
 from corenet.utils.registry import Registry
+import secrets
 
 
 class BaseClient(object):
@@ -108,7 +108,7 @@ class BaseClient(object):
             try:
                 return self._download_fn(remote_path, local_path)
             except Exception as e:
-                wait_duration = 2**num_tries * random.uniform(0.5, 1.0)
+                wait_duration = 2**num_tries * secrets.SystemRandom().uniform(0.5, 1.0)
                 logger.warning(
                     f"Failed download attempt {num_tries}, Retrying in {wait_duration} seconds for {remote_path}."
                 )

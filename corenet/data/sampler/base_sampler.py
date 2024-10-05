@@ -6,13 +6,13 @@
 import argparse
 import copy
 import math
-import random
 from typing import Any, Iterator, List, Tuple
 
 import numpy as np
 import torch
 import torch.distributed as dist
 from torch.utils.data.sampler import Sampler
+import secrets
 
 
 class BaseSampler(Sampler):
@@ -119,9 +119,9 @@ class BaseSampler(Sampler):
         """
         img_indices = copy.deepcopy(self.img_indices)
         if self.shuffle:
-            random.seed(self.epoch)
+            secrets.SystemRandom().seed(self.epoch)
             if self.epoch >= self.start_shuffling_from_epoch:
-                random.shuffle(img_indices)
+                secrets.SystemRandom().shuffle(img_indices)
 
             if self.num_repeats > 1:
                 # Apply repeated augmentation
@@ -247,7 +247,7 @@ class BaseSamplerDDP(Sampler):
         """
         img_indices = copy.deepcopy(self.img_indices)
         if self.shuffle:
-            random.seed(self.epoch)
+            secrets.SystemRandom().seed(self.epoch)
 
             if self.sharding:
                 """If we have 8 samples, say [0, 1, 2, 3, 4, 5, 6, 7], and we have two nodes,
@@ -279,7 +279,7 @@ class BaseSamplerDDP(Sampler):
                     and self.epoch >= self.start_shuffling_from_epoch
                 ):
                     # shuffle the indices within a node.
-                    random.shuffle(indices_node_i)
+                    secrets.SystemRandom().shuffle(indices_node_i)
 
                 if self.num_repeats > 1:
                     """Assume that we have [0, 1, 2, 3] samples in rank_i. With repeated augmentation,
@@ -306,7 +306,7 @@ class BaseSamplerDDP(Sampler):
                     default in many frameworks
                 """
                 if self.epoch >= self.start_shuffling_from_epoch:
-                    random.shuffle(img_indices)
+                    secrets.SystemRandom().shuffle(img_indices)
 
                 if self.num_repeats > 1:
                     # Apply repeated augmentation

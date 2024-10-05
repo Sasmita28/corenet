@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 import re
 import string
 from typing import Dict, Iterator, Optional
@@ -14,6 +13,7 @@ from torch import Tensor
 
 from corenet.data.datasets.dataset_base import BaseIterableDataset
 from corenet.data.text_tokenizer import build_tokenizer
+import secrets
 
 
 def _process_text(text: str) -> str:
@@ -53,7 +53,7 @@ class BaseLMIterableDataset(BaseIterableDataset):
     def __init__(self, opts: argparse.Namespace, *args, **kwargs) -> None:
         super().__init__(opts, *args, **kwargs)
         self.shuffle_data = getattr(opts, "dataset.language_modeling.shuffle_data")
-        self._rng = random.Random(self.seed)
+        self._rng = secrets.SystemRandom().Random(self.seed)
 
         self.sequence_length = getattr(
             opts, "dataset.language_modeling.sequence_length"
