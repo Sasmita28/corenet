@@ -9,7 +9,6 @@ import glob
 import io
 import os
 import pickle
-import random
 import shutil
 import tarfile
 import time
@@ -25,6 +24,7 @@ from corenet.data.datasets.multi_modal_img_text.base_multi_modal_img_text import
 )
 from corenet.utils import logger
 from corenet.utils.download_utils import get_local_path
+import secrets
 
 # To enable reading truncated images, we update the default values of following variables in PIL
 Image.MAX_IMAGE_PIXELS = None
@@ -265,7 +265,7 @@ class ImgTextTarDataset(BaseMultiModalImgText):
                 f"{self.cache_loc}/{folder_idx}/*.{SAMPLE_FILE_EXTN}"
             )
             assert len(files_in_folder) > 0
-            file_name = random.choice(files_in_folder)
+            file_name = secrets.choice(files_in_folder)
 
         with open(file_name, "rb") as handle:
             data = pickle.load(handle)

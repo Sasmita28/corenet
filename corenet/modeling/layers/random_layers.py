@@ -3,13 +3,13 @@
 # Copyright (C) 2024 Apple Inc. All Rights Reserved.
 #
 
-import random
 from typing import List, Optional
 
 from torch import Tensor
 
 from corenet.modeling.layers.base_layer import BaseLayer
 from corenet.utils.math_utils import bound_fn
+import secrets
 
 
 class RandomApply(BaseLayer):
@@ -34,7 +34,7 @@ class RandomApply(BaseLayer):
 
     def forward(self, x: Tensor) -> Tensor:
         if self.training:
-            indexes = [0] + sorted(random.sample(self.module_indexes, k=self.keep_k))
+            indexes = [0] + sorted(secrets.SystemRandom().sample(self.module_indexes, k=self.keep_k))
             for idx in indexes:
                 x = self.module_list[idx](x)
         else:

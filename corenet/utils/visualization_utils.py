@@ -3,11 +3,11 @@
 # Copyright (C) 2024 Apple Inc. All Rights Reserved.
 #
 import copy
-import random
 import sys
 from typing import List, Optional
 
 from torch import Tensor
+import secrets
 
 try:
     import cv2
@@ -53,7 +53,7 @@ def create_colored_mask(
     """Create a colored mask with random colors"""
     colored_mask = np.ones((mask.shape[0], mask.shape[1], 3), dtype=np.uint8)
     # 0 for background.
-    random_hue = random.randint(1, num_classes)
+    random_hue = secrets.SystemRandom().randint(1, num_classes)
 
     random_mask_color = hsv_to_rgb((random_hue / num_classes, 0.75, 0.75))
     colored_mask[..., :] = [int(c * 255.0) for c in random_mask_color]

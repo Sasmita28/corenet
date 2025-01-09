@@ -9,7 +9,6 @@ import glob
 import io
 import os
 import pickle
-import random
 import shutil
 import tarfile
 from pathlib import Path
@@ -19,6 +18,7 @@ from urllib.parse import urlsplit
 import pybase64
 import torch
 from PIL import Image, ImageFile
+import secrets
 
 try:
     import nltk
@@ -339,7 +339,7 @@ class WordnetTaggedClassificationDataset(BaseImageDataset):
                 f"{self.cache_loc}/{folder_idx}/*.{SAMPLE_FILE_EXTN}"
             )
             assert len(files_in_folder) > 0
-            file_name = random.choice(files_in_folder)
+            file_name = secrets.choice(files_in_folder)
 
         with open(file_name, "rb") as handle:
             data = pickle.load(handle)
