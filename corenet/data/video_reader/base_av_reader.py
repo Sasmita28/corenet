@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 from typing import Dict, Optional, Tuple, Union
 
 import av
@@ -21,6 +20,7 @@ from corenet.options.utils import (
     extract_opts_with_prefix_replacement,
 )
 from corenet.utils import logger
+import secrets
 
 
 class VideoDurationDoesNotMatchAudioDurationError(AssertionError):
@@ -701,7 +701,7 @@ def _downsample_frame_indices(
         if random_frames:
             # Choose a starting timestamp for the frames.
             last_valid_idx = frames_per_clip - num_frames_to_sample
-            frame_start_idx = random.randint(0, last_valid_idx)
+            frame_start_idx = secrets.SystemRandom().randint(0, last_valid_idx)
         else:
             # We don't apply any offsets or randomness to the video frames, so we start
             # the video frames at index 0.
@@ -720,7 +720,7 @@ def _downsample_frame_indices(
                 # Select a random frame in the chunk.
                 # NOTE: random.randint() is inclusive on both ends, while
                 # torch.randint() is exclusive for the higher range.
-                selection = random.randint(positions[i], positions[i + 1] - 1)
+                selection = secrets.SystemRandom().randint(positions[i], positions[i + 1] - 1)
                 selected_frame_locations.append(selection)
         else:
             # We choose frames deterministically. Since we don't apply any offsets to

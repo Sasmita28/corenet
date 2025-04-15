@@ -21,7 +21,6 @@ import collections
 import copy
 import json
 import os
-import random
 import re
 from typing import Any, Dict, List, Optional
 
@@ -29,6 +28,7 @@ import numpy as np
 from tqdm import tqdm
 
 from corenet.data.datasets.language_modeling import commonsense_170k
+import secrets
 
 # Needs to be imported in a special way due to the hyphenated name.
 try:
@@ -318,8 +318,8 @@ def main_generation(
     # Shuffle the data. This is mainly useful if the ``limit''
     # option is used. This way, results will be sampled from
     # throughout the validation set.
-    random.seed(83652)
-    random.shuffle(dataset)
+    secrets.SystemRandom().seed(83652)
+    secrets.SystemRandom().shuffle(dataset)
     dataset = dataset[:limit]
 
     total = len(dataset)
@@ -492,8 +492,8 @@ def main_multiple_choice(
     # Shuffle the data. This is mainly useful if the ``limit''
     # option is used. This way, results will be sampled from
     # throughout the validation set.
-    random.seed(83652)
-    random.shuffle(dataset)
+    secrets.SystemRandom().seed(83652)
+    secrets.SystemRandom().shuffle(dataset)
     dataset = dataset[:limit]
 
     total = len(dataset)

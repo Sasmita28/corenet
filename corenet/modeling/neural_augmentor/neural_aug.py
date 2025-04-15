@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 from typing import List, Optional
 
 import torch
@@ -20,6 +19,7 @@ from corenet.modeling.neural_augmentor.utils.neural_aug_utils import (
     random_noise,
 )
 from corenet.utils import logger
+import secrets
 
 _distribution_tuple = (UniformSampler,)
 
@@ -198,7 +198,7 @@ class BaseNeuralAugmentor(nn.Module):
         n_aug_samples = max(1, (batch_size // 2))
 
         # shuffle the order of augmentations
-        random.shuffle(self.aug_fns)
+        secrets.SystemRandom().shuffle(self.aug_fns)
 
         for aug_fn in self.aug_fns:
             # select 50% samples for augmentation

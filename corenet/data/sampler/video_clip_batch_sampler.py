@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 from typing import Callable, Dict, List, Optional
 
 import numpy as np
@@ -15,6 +14,7 @@ from corenet.data.sampler.variable_batch_sampler import (
     VariableBatchSamplerDDP,
 )
 from corenet.utils import logger
+import secrets
 
 
 @SAMPLER_REGISTRY.register(name="video_clip_batch_sampler")
@@ -173,10 +173,10 @@ class VideoClipBatchSampler(VariableBatchSampler):
         start_index = 0
         n_samples = len(indices)
         while start_index < n_samples:
-            crop_h, crop_w, batch_size = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, batch_size = secrets.choice(self.img_batch_tuples)
             h_scale = crop_h / self.crop_size_h
             w_scale = crop_w / self.crop_size_w
-            fps_scale = random.choice(self.frame_rate_scales)
+            fps_scale = secrets.choice(self.frame_rate_scales)
             video_fps = int(self.video_fps * fps_scale)
             audio_fps = int(self.audio_fps * fps_scale)
 
@@ -306,10 +306,10 @@ class VideoClipBatchSamplerDDP(VariableBatchSamplerDDP):
         start_index = 0
         n_samples = len(indices)
         while start_index < n_samples:
-            crop_h, crop_w, batch_size = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, batch_size = secrets.choice(self.img_batch_tuples)
             h_scale = crop_h / self.crop_size_h
             w_scale = crop_w / self.crop_size_w
-            fps_scale = random.choice(self.frame_rate_scales)
+            fps_scale = secrets.choice(self.frame_rate_scales)
             video_fps = int(self.video_fps * fps_scale)
             audio_fps = int(self.audio_fps * fps_scale)
 

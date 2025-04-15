@@ -6,7 +6,6 @@
 import argparse
 import json
 import os
-import random
 from typing import Dict, Tuple, Union
 
 import torch
@@ -18,6 +17,7 @@ from corenet.data.datasets import DATASET_REGISTRY, dataset_base
 from corenet.data.transforms.audio import Noise, Roll, SetFixedLength
 from corenet.data.transforms.common import Compose
 from corenet.data.transforms.image_pil import BaseTransformation
+import secrets
 
 
 @DATASET_REGISTRY.register(name="speech_commands_v2", type="audio_classification")
@@ -160,7 +160,7 @@ class SpeechCommandsv2Dataset(dataset_base.BaseDataset):
         data = self.get_transformed_sample(index)
 
         if self.mixup and self.is_training:
-            index = random.randint(0, len(self) - 1)
+            index = secrets.SystemRandom().randint(0, len(self) - 1)
             data2 = self.get_transformed_sample(index)
 
             if data["metadata"]["audio_fps"] != data2["metadata"]["audio_fps"]:

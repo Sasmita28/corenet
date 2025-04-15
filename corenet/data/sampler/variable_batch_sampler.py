@@ -4,7 +4,6 @@
 #
 
 import argparse
-import random
 from typing import Iterator, Tuple
 
 from corenet.constants import DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH
@@ -12,6 +11,7 @@ from corenet.data.sampler import SAMPLER_REGISTRY
 from corenet.data.sampler.base_sampler import BaseSampler, BaseSamplerDDP
 from corenet.data.sampler.utils import image_batch_pairs
 from corenet.utils import logger
+import secrets
 
 
 @SAMPLER_REGISTRY.register(name="variable_batch_sampler")
@@ -93,7 +93,7 @@ class VariableBatchSampler(BaseSampler):
         start_index = 0
         n_samples = len(img_indices)
         while start_index < n_samples:
-            crop_h, crop_w, batch_size = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, batch_size = secrets.choice(self.img_batch_tuples)
 
             end_index = min(start_index + batch_size, n_samples)
             batch_ids = img_indices[start_index:end_index]
@@ -317,7 +317,7 @@ class VariableBatchSamplerDDP(BaseSamplerDDP):
         start_index = 0
         n_samples_rank_i = len(indices_rank_i)
         while start_index < n_samples_rank_i:
-            crop_h, crop_w, batch_size = random.choice(self.img_batch_tuples)
+            crop_h, crop_w, batch_size = secrets.choice(self.img_batch_tuples)
 
             end_index = min(start_index + batch_size, n_samples_rank_i)
             batch_ids = indices_rank_i[start_index:end_index]

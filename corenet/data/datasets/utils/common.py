@@ -5,8 +5,8 @@
 
 import collections
 import os
-import random
 from typing import Any, List, Optional, Tuple, Union
+import secrets
 
 IMG_EXTENSIONS = (
     ".jpg",
@@ -95,7 +95,7 @@ def select_random_subset(
             )
 
     sample_indices = list(range(num_total_samples))
-    rng = random.Random(random_seed)
+    rng = secrets.SystemRandom().Random(random_seed)
     rng.shuffle(sample_indices)
 
     if num_samples_to_select is None and percentage_of_samples_to_select is None:
@@ -159,7 +159,7 @@ def select_samples_by_category(
     for ind, label in enumerate(sample_category_labels):
         category_specific_samples[label].append(ind)
 
-    rng = random.Random(random_seed)
+    rng = secrets.SystemRandom().Random(random_seed)
     selected_sample_indices = []
     for label, sample_indices in category_specific_samples.items():
         rng.shuffle(sample_indices)
