@@ -77,7 +77,7 @@ def load_config_file(opts):
     setattr(opts, "common.config_file", config_file_name)
     with open(config_file_name, "r") as yaml_file:
         try:
-            cfg = yaml.load(yaml_file, Loader=yaml.FullLoader)
+            cfg = yaml.load(yaml_file, Loader=yaml.SafeLoader)
             flat_cfg = flatten_yaml_as_dict(cfg)
             for k, v in flat_cfg.items():
                 if hasattr(opts, k):
