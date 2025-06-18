@@ -362,10 +362,10 @@ class HTTPClient(BaseClient):
         }
 
     def _download_fn(self, remote_path: str, local_path: str) -> None:
-        response = requests.get(remote_path, stream=True)
+        response = requests.get(remote_path, stream=True, timeout=60)
         if response.status_code == 403:
             # Try with the HTTP/HTTPS proxy from ENV
-            response = requests.get(remote_path, stream=True, proxies=self.proxies)
+            response = requests.get(remote_path, stream=True, proxies=self.proxies, timeout=60)
         if response.status_code == 200:
             with open(local_path, "wb") as f:
                 f.write(response.raw.read())
