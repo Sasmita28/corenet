@@ -6,7 +6,6 @@
 import argparse
 import math
 import pathlib
-import random
 from typing import Callable, Dict, List, Optional, Union
 
 import torch
@@ -14,6 +13,7 @@ import torchaudio
 
 from corenet.data.transforms import TRANSFORMATIONS_REGISTRY, BaseTransformation
 from corenet.data.transforms.audio_aux import mfccs
+import secrets
 
 
 @TRANSFORMATIONS_REGISTRY.register(name="audio_gain", type="audio")
@@ -71,12 +71,12 @@ class Gain(BaseTransformation):
 
         audio = data["samples"]["audio"]
         if self.share_clip_params:
-            gain_level = random.choice(self.gain_levels)
+            gain_level = secrets.choice(self.gain_levels)
             data["samples"]["audio"] = 10.0 ** (gain_level / 20.0) * audio
         else:
             new_audio = torch.empty_like(audio)
             for i in range(audio.shape[0]):
-                gain_level = random.choice(self.gain_levels)
+                gain_level = secrets.choice(self.gain_levels)
                 new_audio[i] = 10.0 ** (gain_level / 20.0) * audio[i]
             data["samples"]["audio"] = new_audio
         return data
@@ -121,7 +121,7 @@ class Noise(BaseTransformation):
                 pathlib.Path(self.noise_files_dir).glob("**/*.wav")
             )
             if is_training:
-                random.shuffle(self.noise_files)
+                secrets.SystemRandom().shuffle(self.noise_files)
             self.noise_waves = self.load_noise_files(cache_size=self.cache_size)
         if len(self.noise_files) == 0:
             raise ValueError(
@@ -197,13 +197,12 @@ class Noise(BaseTransformation):
         """
         audio = data["samples"]["audio"]
         assert audio.shape[0] in [1, 2]
-        gain_level = random.choice(self.gain_levels)
-        noise_wave, noise_fps = random.choice(self.noise_waves)
+        gain_level = secrets.choice(self.gain_levels)
+        noise_wave, noise_fps = secrets.choice(self.noise_waves)
         # @noise_wave is in [num_channels, sequence_length] format.
         assert math.isclose(data["metadata"]["audio_fps"], noise_fps, rel_tol=1e-6)
         if noise_wave.shape[-1] >= audio.shape[-1]:
-            random_start_point = random.randint(
-                0, noise_wave.shape[-1] - audio.shape[-1]
+            random_start_point = secrets.SystemRandom().randint(0, noise_wave.shape[-1] - audio.shape[-1]
             )
             noise_wave = noise_wave[
                 :, random_start_point : random_start_point + audio.shape[-1]
@@ -653,7 +652,7 @@ class GaussianAudioNoise(BaseTransformation):
                 }
             }
         """
-        scale = random.uniform(self._min_scale, self._max_scale)
+        scale = secrets.SystemRandom().uniform(self._min_scale, self._max_scale)
         noise = torch.randn_like(data["samples"]["audio"]) * scale
         data["samples"]["audio"] += noise
         return data

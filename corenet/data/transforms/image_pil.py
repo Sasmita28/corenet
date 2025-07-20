@@ -6,7 +6,6 @@
 import argparse
 import copy
 import math
-import random
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -19,6 +18,7 @@ from corenet.data.transforms import TRANSFORMATIONS_REGISTRY, BaseTransformation
 from corenet.data.transforms.utils import jaccard_numpy, setup_size
 from corenet.options.parse_args import JsonValidator
 from corenet.utils import logger
+import secrets
 
 INTERPOLATION_MODE_MAP = {
     "nearest": T.InterpolationMode.NEAREST,
@@ -272,7 +272,7 @@ class FixedSizeCrop(BaseTransformation):
             offset_height = max(height - self.crop_height, 0)
             offset_width = max(width - self.crop_width, 0)
 
-            r = random.random()
+            r = secrets.SystemRandom().random()
             top = int(offset_height * r)
             left = int(offset_width * r)
 
@@ -387,7 +387,7 @@ class ScaleJitter(BaseTransformation):
     def __call__(self, data: Dict, *args, **kwargs) -> Dict:
         img = data["image"]
         orig_width, orig_height = F.get_image_size(img)
-        scale = self.scale_range[0] + random.random() * (
+        scale = self.scale_range[0] + secrets.SystemRandom().random() * (
             self.scale_range[1] - self.scale_range[0]
         )
         r = (
@@ -764,7 +764,7 @@ class RandomHorizontalFlip(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        if random.random() <= self.p:
+        if secrets.SystemRandom().random() <= self.p:
             img = data["image"]
             width, height = F.get_image_size(img)
             data["image"] = F.hflip(img)
@@ -833,7 +833,7 @@ class RandomRotate(BaseTransformation):
         if "box_coordinates" in data_keys or "instance_mask" in data_keys:
             logger.error("{} supports only images and masks")
 
-        rand_angle = random.uniform(-self.angle, self.angle)
+        rand_angle = secrets.SystemRandom().uniform(-self.angle, self.angle)
         img = data.pop("image")
         data["image"] = F.rotate(
             img,
@@ -1085,13 +1085,13 @@ class SSDCroping(BaseTransformation):
 
             while True:
                 # randomly choose a mode
-                min_jaccard_overalp = random.choice(self.iou_sample_opts)
+                min_jaccard_overalp = secrets.choice(self.iou_sample_opts)
                 if min_jaccard_overalp == 0.0:
                     return data
 
                 for _ in range(self.trials):
-                    new_w = int(random.uniform(0.3 * width, width))
-                    new_h = int(random.uniform(0.3 * height, height))
+                    new_w = int(secrets.SystemRandom().uniform(0.3 * width, width))
+                    new_h = int(secrets.SystemRandom().uniform(0.3 * height, height))
 
                     aspect_ratio = new_h / new_w
                     if not (
@@ -1099,8 +1099,8 @@ class SSDCroping(BaseTransformation):
                     ):
                         continue
 
-                    left = int(random.uniform(0, width - new_w))
-                    top = int(random.uniform(0, height - new_h))
+                    left = int(secrets.SystemRandom().uniform(0, width - new_w))
+                    top = int(secrets.SystemRandom().uniform(0, height - new_h))
 
                     # convert to integer rect x1,y1,x2,y2
                     rect = np.array([left, top, left + new_w, top + new_h])
@@ -1538,7 +1538,7 @@ class RandomResize(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        random_ratio = random.uniform(self.min_ratio, self.max_ratio)
+        random_ratio = secrets.SystemRandom().uniform(self.min_ratio, self.max_ratio)
 
         # compute the size
         width, height = F.get_image_size(data["image"])
@@ -1671,7 +1671,7 @@ class RandomShortSizeResize(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        short_side = random.randint(self.short_side_min, self.short_side_max)
+        short_side = secrets.SystemRandom().randint(self.short_side_min, self.short_side_max)
         img_w, img_h = data["image"].size
         scale = min(
             short_side / min(img_h, img_w), self.max_img_dim / max(img_h, img_w)
@@ -1761,10 +1761,10 @@ class RandomGaussianBlur(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        if random.random() < self.p:
+        if secrets.SystemRandom().random() < self.p:
             img = data.pop("image")
             # radius is the standard devaition of the gaussian kernel
-            img = img.filter(ImageFilter.GaussianBlur(radius=random.random()))
+            img = img.filter(ImageFilter.GaussianBlur(radius=secrets.SystemRandom().random()))
             data["image"] = img
         return data
 
@@ -1838,14 +1838,14 @@ class RandomCrop(BaseTransformation):
         if img_w == target_w and img_h == target_h:
             return 0, 0, img_h, img_w
 
-        i = random.randint(0, max(0, img_h - target_h))
-        j = random.randint(0, max(0, img_w - target_w))
+        i = secrets.SystemRandom().randint(0, max(0, img_h - target_h))
+        j = secrets.SystemRandom().randint(0, max(0, img_w - target_w))
         return i, j, target_h, target_w
 
     @staticmethod
     def get_params_from_box(boxes, img_h, img_w):
         # x, y, w, h
-        offset = random.randint(20, 50)
+        offset = secrets.SystemRandom().randint(20, 50)
         start_x = max(0, int(round(np.min(boxes[..., 0]))) - offset)
         start_y = max(0, int(round(np.min(boxes[..., 1]))) - offset)
         end_x = min(int(round(np.max(boxes[..., 2]))) + offset, img_w)
@@ -2128,7 +2128,7 @@ class RandomOrder(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        random.shuffle(self.transforms)
+        secrets.SystemRandom().shuffle(self.transforms)
         for t in self.transforms[: self.keep_t]:
             data = t(data)
         return data

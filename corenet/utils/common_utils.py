@@ -5,7 +5,6 @@
 
 import argparse
 import os
-import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
@@ -18,6 +17,7 @@ from torch import Tensor
 from corenet.constants import MIN_TORCH_VERSION
 from corenet.utils import logger
 from corenet.utils.ddp_utils import is_master
+import secrets
 
 
 def construct_local_path_from_remote(remote_path: str, local_dir: str) -> str:
@@ -107,7 +107,7 @@ def device_setup(opts: argparse.Namespace) -> argparse.Namespace:
         An instance of argparse.Namespace with updated `dev.*` entries.
     """
     random_seed = getattr(opts, "common.seed", 0)
-    random.seed(random_seed)
+    secrets.SystemRandom().seed(random_seed)
     torch.manual_seed(random_seed)
     np.random.seed(random_seed)
 
