@@ -17,6 +17,7 @@ from corenet.data.transforms.common import Compose
 from corenet.data.video_reader import VIDEO_READER_REGISTRY, ffmpeg_utils
 from corenet.data.video_reader.base_av_reader import BaseAVReader
 from corenet.utils.import_utils import ensure_library_is_available
+from security import safe_command
 
 try:
     import ffmpeg
@@ -141,8 +142,7 @@ class FFMPEGReader(BaseAVReader):
                 "-loglevel",
                 ffmpeg_loglevel,
             )
-            video = subprocess.run(
-                video.compile(),
+            video = safe_command.run(subprocess.run, video.compile(),
                 capture_output=True,
                 # See https://github.com/kkroening/ffmpeg-python/issues/782
                 stdin=subprocess.DEVNULL,
