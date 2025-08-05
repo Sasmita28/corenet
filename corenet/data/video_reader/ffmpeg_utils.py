@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from security import safe_command
 
 try:
     import ffmpeg
@@ -379,8 +380,7 @@ def transform_video_file(
             )
             .compile()
         )
-        video_decode_process = subprocess.Popen(
-            video_decode_process_command,
+        video_decode_process = safe_command.run(subprocess.Popen, video_decode_process_command,
             # See https://github.com/kkroening/ffmpeg-python/issues/782
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
@@ -412,8 +412,7 @@ def transform_video_file(
                 .global_args("-threads", str(threads), "-loglevel", ffmpeg_loglevel)
                 .compile()
             )
-            extract_audio_process = subprocess.Popen(
-                extract_audio_command,
+            extract_audio_process = safe_command.run(subprocess.Popen, extract_audio_command,
                 # See https://github.com/kkroening/ffmpeg-python/issues/782
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
@@ -443,8 +442,7 @@ def transform_video_file(
             .overwrite_output()
             .compile()
         )
-        encoder_process = subprocess.Popen(
-            encoder_process_command,
+        encoder_process = safe_command.run(subprocess.Popen, encoder_process_command,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
